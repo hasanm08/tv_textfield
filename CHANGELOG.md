@@ -1,3 +1,8 @@
+## 0.1.1
+
+* Add repository, homepage, and issue tracker links to `pubspec.yaml`.
+* Add GitHub Actions CI and pub.dev publish workflow.
+
 ## 0.1.0
 
 * Initial release.
