@@ -3,7 +3,9 @@ description: >-
   A TV-friendly TextField that fixes D-pad focus issues and supports both
   software and hardware keyboards on Android TV, Apple TV, and other platforms.
 version: 0.1.0
-homepage: https://hasanm08.github.io/
+homepage: https://github.com/hasanm08/tv_textfield
+repository: https://github.com/hasanm08/tv_textfield
+issue_tracker: https://github.com/hasanm08/tv_textfield/issues
 
 environment:
   sdk: ^3.12.2

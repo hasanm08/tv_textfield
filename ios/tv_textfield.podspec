@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 A TV-friendly TextField that fixes D-pad focus issues on Android TV and Apple TV.
                        DESC
-  s.homepage         = 'https://github.com/example/tv_textfield'
+  s.homepage         = 'https://github.com/hasanm08/tv_textfield'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'tv_textfield' => 'dev@example.com' }
   s.source           = { :path => '.' }
