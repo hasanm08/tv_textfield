@@ -1,6 +1,4 @@
-import 'dart:io' show Platform;
-
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -266,20 +264,20 @@ TvTextFieldImplementation resolveTvTextFieldImplementation(
     return TvTextFieldImplementation.appleNative;
   }
   if (requested == TvTextFieldImplementation.native) {
-    if (!kIsWeb && Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       return TvTextFieldImplementation.androidNative;
     }
-    if (!kIsWeb && Platform.isIOS) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       return TvTextFieldImplementation.appleNative;
     }
     return TvTextFieldImplementation.flutter;
   }
 
   final info = TvTextFieldPlatform.info;
-  if (!kIsWeb && Platform.isAndroid) {
+  if (defaultTargetPlatform == TargetPlatform.android) {
     return TvTextFieldImplementation.androidNative;
   }
-  if (!kIsWeb && Platform.isIOS && info.isTvOS) {
+  if (defaultTargetPlatform == TargetPlatform.iOS && info.isTvOS) {
     return TvTextFieldImplementation.appleNative;
   }
   return TvTextFieldImplementation.flutter;

@@ -1,3 +1,9 @@
+## 0.1.2
+
+* Declare Web, Windows, macOS, and Linux plugin platform support.
+* Add Dart plugin registration for desktop and web targets.
+* Replace `dart:io` platform checks with `defaultTargetPlatform` for web compatibility.
+
 ## 0.1.1
 
 * Add repository, homepage, and issue tracker links to `pubspec.yaml`.
