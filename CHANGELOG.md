@@ -1,4 +1,4 @@
-## 0.1.2
+## 0.1.3
 
 * Declare Web, Windows, macOS, and Linux plugin platform support.
 * Add Dart plugin registration for desktop and web targets.
