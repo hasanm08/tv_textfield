@@ -12,10 +12,11 @@ A TV-friendly TextField that fixes D-pad focus issues on Android TV and Apple TV
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'tv_textfield' => 'dev@example.com' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'tv_textfield/Sources/**/*.swift'
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
   s.tvos.deployment_target = '13.0'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
+  s.resource_bundles = {'tv_textfield_privacy' => ['tv_textfield/Sources/tv_textfield/Resources/PrivacyInfo.xcprivacy']}
 end

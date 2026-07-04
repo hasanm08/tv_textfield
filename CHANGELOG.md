@@ -1,3 +1,9 @@
+## 1.0.1
+
+* Add Swift Package Manager support for iOS and tvOS.
+* Migrate Android plugin to built-in Kotlin (remove legacy `build.gradle`).
+* Update minimum supported Flutter version to 3.44.
+
 ## 1.0.0
  
 
