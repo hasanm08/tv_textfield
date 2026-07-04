@@ -2,20 +2,17 @@ name: tv_textfield
 description: >-
   A TV-friendly TextField that fixes D-pad focus issues and supports both
   software and hardware keyboards on Android TV, Apple TV, and other platforms.
-version: 1.0.2
+version: 1.0.4
 homepage: https://github.com/hasanm08/tv_textfield
 repository: https://github.com/hasanm08/tv_textfield
 issue_tracker: https://github.com/hasanm08/tv_textfield/issues
 
 topics:
-  - tv
+  - flutter-tv
   - android-tv
   - apple-tv
-  - textfield
-  - focus
-  - d-pad
   - remote-control
-  - flutter-tv
+  - textfield
 
 environment:
   sdk: ^3.12.2
