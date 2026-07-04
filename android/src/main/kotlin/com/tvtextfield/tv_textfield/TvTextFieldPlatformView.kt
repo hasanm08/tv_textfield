@@ -43,6 +43,9 @@ class TvTextFieldPlatformView(
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
+                if (suppressTextEvents) {
+                    return
+                }
                 channel.invokeMethod("onTextChanged", s?.toString() ?: "")
             }
         })
@@ -63,9 +66,20 @@ class TvTextFieldPlatformView(
         editText.isFocusableInTouchMode = true
     }
 
+    private var suppressTextEvents = false
+
     private fun applyParams() {
         editText.hint = params["hint"] as? String ?: ""
-        editText.setText(params["text"] as? String ?: "")
+        val text = params["text"] as? String ?: ""
+        if (editText.text.toString() != text) {
+            suppressTextEvents = true
+            try {
+                editText.setText(text)
+                editText.setSelection(text.length)
+            } finally {
+                suppressTextEvents = false
+            }
+        }
         editText.isEnabled = params["enabled"] as? Boolean ?: true
         editText.inputType = mapKeyboardType(params["keyboardType"] as? String)
         if (params["obscureText"] as? Boolean == true) {
@@ -128,8 +142,13 @@ class TvTextFieldPlatformView(
             "setText" -> {
                 val text = call.arguments as? String ?: ""
                 if (editText.text.toString() != text) {
-                    editText.setText(text)
-                    editText.setSelection(text.length)
+                    suppressTextEvents = true
+                    try {
+                        editText.setText(text)
+                        editText.setSelection(text.length)
+                    } finally {
+                        suppressTextEvents = false
+                    }
                 }
                 result.success(null)
             }

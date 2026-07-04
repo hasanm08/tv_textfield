@@ -76,7 +76,6 @@ class _FlutterTvTextFieldState extends State<FlutterTvTextField> {
   void initState() {
     super.initState();
     widget.focusNode.addListener(_handleFocusChange);
-    widget.controller.addListener(_handleTextChange);
   }
 
   @override
@@ -86,23 +85,12 @@ class _FlutterTvTextFieldState extends State<FlutterTvTextField> {
       oldWidget.focusNode.removeListener(_handleFocusChange);
       widget.focusNode.addListener(_handleFocusChange);
     }
-    if (oldWidget.controller != widget.controller) {
-      oldWidget.controller.removeListener(_handleTextChange);
-      widget.controller.addListener(_handleTextChange);
-    }
   }
 
   @override
   void dispose() {
     widget.focusNode.removeListener(_handleFocusChange);
-    widget.controller.removeListener(_handleTextChange);
     super.dispose();
-  }
-
-  void _handleTextChange() {
-    if (!_isEditing) {
-      setState(() {});
-    }
   }
 
   void _handleFocusChange() {
@@ -110,7 +98,6 @@ class _FlutterTvTextFieldState extends State<FlutterTvTextField> {
     if (!widget.focusNode.hasFocus) {
       _exitEditing(dismissKeyboard: true, unfocus: false);
     }
-    setState(() {});
   }
 
   void _enterEditing() {
@@ -177,43 +164,50 @@ class _FlutterTvTextFieldState extends State<FlutterTvTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return _isEditing
-        ? _buildEditingField()
-        : Focus(
-            focusNode: widget.focusNode,
-            canRequestFocus: widget.canRequestFocus && widget.enabled,
-            skipTraversal: false,
-            onKeyEvent: _handleKeyEvent,
-            child: Actions(
-              actions: <Type, Action<Intent>>{
-                ActivateIntent: CallbackAction<ActivateIntent>(
-                  onInvoke: (intent) {
-                    _enterEditing();
-                    return null;
-                  },
-                ),
-              },
-              child: GestureDetector(
-                onTap: widget.enabled
-                    ? () {
-                        widget.onTap?.call();
-                        _enterEditing();
-                      }
-                    : null,
-                child: TvTextFieldDisplay(
-                  text: widget.controller.text,
-                  decoration: widget.decoration,
-                  style: widget.style,
-                  obscureText: widget.obscureText,
-                  textAlign: widget.textAlign,
-                  maxLines: widget.maxLines,
-                  minLines: widget.minLines,
-                  hasFocus: widget.focusNode.hasFocus,
-                  focusDecoration: widget.focusDecoration,
-                ),
+    if (_isEditing) {
+      return _buildEditingField();
+    }
+
+    return ListenableBuilder(
+      listenable: Listenable.merge([widget.focusNode, widget.controller]),
+      builder: (context, _) {
+        return Focus(
+          focusNode: widget.focusNode,
+          canRequestFocus: widget.canRequestFocus && widget.enabled,
+          skipTraversal: false,
+          onKeyEvent: _handleKeyEvent,
+          child: Actions(
+            actions: <Type, Action<Intent>>{
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (intent) {
+                  _enterEditing();
+                  return null;
+                },
+              ),
+            },
+            child: GestureDetector(
+              onTap: widget.enabled
+                  ? () {
+                      widget.onTap?.call();
+                      _enterEditing();
+                    }
+                  : null,
+              child: TvTextFieldDisplay(
+                text: widget.controller.text,
+                decoration: widget.decoration,
+                style: widget.style,
+                obscureText: widget.obscureText,
+                textAlign: widget.textAlign,
+                maxLines: widget.maxLines,
+                minLines: widget.minLines,
+                hasFocus: widget.focusNode.hasFocus,
+                focusDecoration: widget.focusDecoration,
               ),
             ),
-          );
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildEditingField() {

@@ -27,7 +27,7 @@ Works with [flutter-tvos](https://fluttertv.dev) for Apple TV builds.
 
 ```yaml
 dependencies:
-  tv_textfield: ^0.1.0
+  tv_textfield: ^1.0.2
 ```
 
 ## Usage

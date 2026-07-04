@@ -1,3 +1,11 @@
+## 1.0.2
+
+* Reduce redundant platform-channel traffic for native text fields (param diffing and sync guards).
+* Avoid unnecessary widget rebuilds using `ListenableBuilder` for focus and display updates.
+* Isolate native platform views with `RepaintBoundary` for smoother compositing.
+* Deduplicate Android / Apple native field logic into shared helpers.
+* Expand widget and platform tests; fix stale Android unit test.
+
 ## 1.0.1
 
 * Add Swift Package Manager support for iOS and tvOS.

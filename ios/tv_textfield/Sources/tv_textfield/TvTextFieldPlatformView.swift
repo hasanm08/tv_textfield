@@ -56,8 +56,15 @@ class TvTextFieldPlatformView: NSObject, FlutterPlatformView, UITextFieldDelegat
     return textField
   }
 
+  private var suppressTextEvents = false
+
   private func applyParams() {
-    textField.text = params["text"] as? String ?? ""
+    let text = params["text"] as? String ?? ""
+    if textField.text != text {
+      suppressTextEvents = true
+      textField.text = text
+      suppressTextEvents = false
+    }
     textField.placeholder = params["hint"] as? String
     textField.isEnabled = params["enabled"] as? Bool ?? true
     textField.isSecureTextEntry = params["obscureText"] as? Bool ?? false
@@ -106,6 +113,9 @@ class TvTextFieldPlatformView: NSObject, FlutterPlatformView, UITextFieldDelegat
   }
 
   @objc private func textDidChange() {
+    if suppressTextEvents {
+      return
+    }
     channel.invokeMethod("onTextChanged", arguments: textField.text ?? "")
   }
 
@@ -114,7 +124,9 @@ class TvTextFieldPlatformView: NSObject, FlutterPlatformView, UITextFieldDelegat
     case "setText":
       let text = call.arguments as? String ?? ""
       if textField.text != text {
+        suppressTextEvents = true
         textField.text = text
+        suppressTextEvents = false
       }
       result(nil)
     case "setFocused":

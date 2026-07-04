@@ -3,6 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'native_tv_text_field_mixin.dart';
+import 'native_tv_text_field_params.dart';
+
 /// Apple-native [UITextField] embedded through a platform view.
 ///
 /// Used on tvOS for the system full-screen keyboard and on iOS when native input
@@ -51,120 +54,77 @@ class AppleTvTextField extends StatefulWidget {
   State<AppleTvTextField> createState() => _AppleTvTextFieldState();
 }
 
-class _AppleTvTextFieldState extends State<AppleTvTextField> {
+class _AppleTvTextFieldState extends State<AppleTvTextField>
+    with NativeTvTextFieldMixin<AppleTvTextField> {
   static const _viewType = 'tv_textfield/edit_text';
-  MethodChannel? _channel;
+
+  @override
+  TextEditingController get nativeController => widget.controller;
+
+  @override
+  FocusNode get nativeFocusNode => widget.focusNode;
+
+  @override
+  InputDecoration get nativeDecoration => widget.decoration;
+
+  @override
+  TextStyle? get nativeStyle => widget.style;
+
+  @override
+  TextAlign get nativeTextAlign => widget.textAlign;
+
+  @override
+  bool get nativeObscureText => widget.obscureText;
+
+  @override
+  int? get nativeMaxLines => widget.maxLines;
+
+  @override
+  int? get nativeMinLines => widget.minLines;
+
+  @override
+  bool get nativeEnabled => widget.enabled;
+
+  @override
+  bool get nativeAutofocus => widget.autofocus;
+
+  @override
+  TextInputType? get nativeKeyboardType => widget.keyboardType;
+
+  @override
+  TextInputAction? get nativeTextInputAction => widget.textInputAction;
+
+  @override
+  ValueChanged<String>? get nativeOnChanged => widget.onChanged;
+
+  @override
+  ValueChanged<String>? get nativeOnSubmitted => widget.onSubmitted;
+
+  @override
+  ValueChanged<bool>? get nativeOnFocusChange => widget.onFocusChange;
 
   @override
   void initState() {
     super.initState();
-    widget.focusNode.addListener(_handleFocusChange);
-    widget.controller.addListener(_syncTextToNative);
+    attachNativeListeners();
   }
 
   @override
   void didUpdateWidget(covariant AppleTvTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.focusNode != widget.focusNode) {
-      oldWidget.focusNode.removeListener(_handleFocusChange);
-      widget.focusNode.addListener(_handleFocusChange);
-    }
-    if (oldWidget.controller != widget.controller) {
-      oldWidget.controller.removeListener(_syncTextToNative);
-      widget.controller.addListener(_syncTextToNative);
-    }
-    _updateNativeView();
+    swapNativeListeners(
+      oldFocusNode: oldWidget.focusNode,
+      newFocusNode: widget.focusNode,
+      oldController: oldWidget.controller,
+      newController: widget.controller,
+    );
+    updateNativeViewIfNeeded();
   }
 
   @override
   void dispose() {
-    widget.focusNode.removeListener(_handleFocusChange);
-    widget.controller.removeListener(_syncTextToNative);
+    detachNativeListeners();
     super.dispose();
-  }
-
-  void _handleFocusChange() {
-    widget.onFocusChange?.call(widget.focusNode.hasFocus);
-    _channel?.invokeMethod<void>('setFocused', widget.focusNode.hasFocus);
-    setState(() {});
-  }
-
-  Future<void> _syncTextToNative() async {
-    await _channel?.invokeMethod<void>('setText', widget.controller.text);
-  }
-
-  Future<void> _updateNativeView() async {
-    await _channel?.invokeMethod<void>('update', _creationParams());
-  }
-
-  Map<String, dynamic> _creationParams() {
-    final hint = widget.decoration.hintText ?? '';
-    final textColor = widget.style?.color;
-    return {
-      'text': widget.controller.text,
-      'hint': hint,
-      'enabled': widget.enabled,
-      'obscureText': widget.obscureText,
-      'textAlign': widget.textAlign.name,
-      'maxLines': widget.maxLines ?? 1,
-      'minLines': widget.minLines ?? 1,
-      'autofocus': widget.autofocus,
-      'keyboardType': _keyboardTypeName(widget.keyboardType),
-      'textInputAction': widget.textInputAction?.name,
-      if (textColor != null) 'textColor': textColor.toARGB32(),
-    };
-  }
-
-  String? _keyboardTypeName(TextInputType? type) {
-    if (type == null) {
-      return null;
-    }
-    if (type == TextInputType.multiline) return 'multiline';
-    if (type == TextInputType.number) return 'number';
-    if (type == TextInputType.phone) return 'phone';
-    if (type == TextInputType.emailAddress) return 'emailAddress';
-    if (type == TextInputType.url) return 'url';
-    if (type == TextInputType.visiblePassword) return 'visiblePassword';
-    if (type == TextInputType.datetime) return 'datetime';
-    if (type == TextInputType.name) return 'name';
-    if (type == TextInputType.none) return 'none';
-    return 'text';
-  }
-
-  void _onPlatformViewCreated(int id) {
-    _channel = MethodChannel('tv_textfield/edit_text_$id');
-    _channel!.setMethodCallHandler(_handleMethodCall);
-    _updateNativeView();
-    if (widget.autofocus) {
-      widget.focusNode.requestFocus();
-    }
-  }
-
-  Future<void> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'onTextChanged':
-        final text = call.arguments as String? ?? '';
-        if (widget.controller.text != text) {
-          widget.controller.value = widget.controller.value.copyWith(
-            text: text,
-            selection: TextSelection.collapsed(offset: text.length),
-            composing: TextRange.empty,
-          );
-          widget.onChanged?.call(text);
-        }
-      case 'onSubmitted':
-        final text = call.arguments as String? ?? widget.controller.text;
-        widget.onSubmitted?.call(text);
-      case 'onFocusChanged':
-        final focused = call.arguments as bool? ?? false;
-        if (focused) {
-          if (!widget.focusNode.hasFocus) {
-            widget.focusNode.requestFocus();
-          }
-        } else {
-          widget.focusNode.unfocus();
-        }
-    }
   }
 
   @override
@@ -173,17 +133,24 @@ class _AppleTvTextFieldState extends State<AppleTvTextField> {
         ? Focus(
             focusNode: widget.focusNode,
             canRequestFocus: widget.canRequestFocus && widget.enabled,
-            child: SizedBox(
-              height: _estimatedHeight(context),
-              child: UiKitView(
-                viewType: _viewType,
-                layoutDirection: TextDirection.ltr,
-                creationParams: _creationParams(),
-                creationParamsCodec: const StandardMessageCodec(),
-                onPlatformViewCreated: _onPlatformViewCreated,
-                gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{
-                  Factory<EagerGestureRecognizer>(EagerGestureRecognizer.new),
-                },
+            child: RepaintBoundary(
+              child: SizedBox(
+                height: estimateNativeTextFieldHeight(
+                  context,
+                  style: widget.style,
+                  maxLines: widget.maxLines,
+                ),
+                child: UiKitView(
+                  viewType: _viewType,
+                  layoutDirection: TextDirection.ltr,
+                  creationParams: nativeCreationParams(),
+                  creationParamsCodec: const StandardMessageCodec(),
+                  onPlatformViewCreated: onNativePlatformViewCreated,
+                  gestureRecognizers:
+                      const <Factory<OneSequenceGestureRecognizer>>{
+                    Factory<EagerGestureRecognizer>(EagerGestureRecognizer.new),
+                  },
+                ),
               ),
             ),
           )
@@ -204,22 +171,10 @@ class _AppleTvTextFieldState extends State<AppleTvTextField> {
             onSubmitted: widget.onSubmitted,
           );
 
-    if (widget.focusDecoration == null) {
-      return child;
-    }
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      decoration: widget.focusNode.hasFocus ? widget.focusDecoration : null,
+    return wrapNativeFocusDecoration(
       child: child,
+      focusDecoration: widget.focusDecoration,
+      focusNode: widget.focusNode,
     );
-  }
-
-  double _estimatedHeight(BuildContext context) {
-    final theme = Theme.of(context);
-    final lines = widget.maxLines == null ? 1 : (widget.maxLines!).clamp(1, 6);
-    final fontSize =
-        widget.style?.fontSize ?? theme.textTheme.bodyLarge?.fontSize ?? 16;
-    return (fontSize * 1.4 * lines) + 16;
   }
 }
