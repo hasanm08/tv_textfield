@@ -1,4 +1,4 @@
-## 1.0.4
+## 1.0.5
 
 * Refine pub.dev topic tags for improved package discoverability.
 
