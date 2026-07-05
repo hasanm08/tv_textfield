@@ -1,3 +1,7 @@
+## 1.0.4
+
+* Refine pub.dev topic tags for improved package discoverability.
+
 ## 1.0.2
 
 * Reduce redundant platform-channel traffic for native text fields (param diffing and sync guards).
@@ -13,7 +17,6 @@
 * Update minimum supported Flutter version to 3.44.
 
 ## 1.0.0
- 
 
 * Declare Web, Windows, macOS, and Linux plugin platform support.
 * Add Dart plugin registration for desktop and web targets.
